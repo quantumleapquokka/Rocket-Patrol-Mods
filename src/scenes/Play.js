@@ -20,9 +20,17 @@ class Play extends Phaser.Scene {
         this.p1Rocket = new Rocket(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket').setOrigin(0.5, 0)
 
         // add spaceships (x3)
-        this.ship01 = new Spaceship(this, game.config.width + borderUISize*6, borderUISize*4, 'spaceship', 0, 30).setOrigin(0, 0)
+        this.ship01 = new Spaceship(this, game.config.width + borderUISize*6, borderUISize*3, 'spaceship', 0, 30).setOrigin(0, 0)
         this.ship02 = new Spaceship(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, 'spaceship', 0, 20).setOrigin(0,0)
-        this.ship03 = new Spaceship(this, game.config.width, borderUISize*6 + borderPadding*4, 'spaceship', 0, 10).setOrigin(0,0)
+        this.ship03 = new Spaceship(this, game.config.width, borderUISize*6 + borderPadding*7, 'spaceship', 0, 10).setOrigin(0,0)
+
+        // add new enemy spaceship (x2)
+        this.shipNew01 = new Spaceship(this, game.config.width + borderUISize*4, borderUISize*4.5, 'spaceship1', 0, 50).setOrigin(0, 0)
+        this.shipNew02 = new Spaceship(this, game.config.width + borderUISize*4, borderUISize*7, 'spaceship1', 0, 50 ).setOrigin(0, 0)
+        // adjust speeds
+        this.shipNew01.moveSpeed = 8;
+        this.shipNew02.moveSpeed = 9;
+
         
         // define keys
         keyFIRE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F)
@@ -30,8 +38,13 @@ class Play extends Phaser.Scene {
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT)
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
 
+        // mouse movement
+        // mouse = this.input.on("pointermove", (pointer, this.p1Rocket))
+
+
         // initialize score
         this.p1Score = 0
+        
 
         // display score
         let scoreConfig = {
@@ -46,18 +59,37 @@ class Play extends Phaser.Scene {
             },
             fixedWidth: 100
         }
+
+
         this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + borderPadding*2, this.p1Score, scoreConfig)
+
+        scoreConfig.fixedWidth = 0
+        this.add.text(10, 10, `High Score: ${game.settings.highScore}`, scoreConfig)
 
         // GAME OVER Flag
         this.gameOver = false
 
-        // 60 second play clock
-        scoreConfig.fixedWidth = 0
+        // Game Clock
+        let timeConfig = {
+            fontFamily: 'Courier',
+            fontSize: '28px',
+            backgroundColor: '#F3B141',
+            color: '#843605',
+            align: 'right',
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+            fixedWidth: 100
+        }
+        this.timeLeft = this.add.text(game.config.width - borderUISize - borderPadding - timeConfig.fixedWidth, borderUISize + borderPadding*2, Math.floor(game.settings.gameTimer / 1000), timeConfig)
+
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
             this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5)
             this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or ← for Menu', scoreConfig).setOrigin(0.5)
             this.gameOver = true
         }, null, this)
+        
     }   
 
     update() {
@@ -75,6 +107,8 @@ class Play extends Phaser.Scene {
             this.ship01.update()               // update spaceships (x3)
             this.ship02.update()
             this.ship03.update()
+            this.shipNew01.update()
+            this.shipNew02.update()
         }
         
 
@@ -90,6 +124,14 @@ class Play extends Phaser.Scene {
         if (this.checkCollision(this.p1Rocket, this.ship01)) {
             this.p1Rocket.reset()
             this.shipExplode(this.ship01)
+        }
+        if (this.checkCollision(this.p1Rocket, this.shipNew01)) {
+            this.p1Rocket.reset()
+            this.shipExplode(this.shipNew01)
+        }
+        if (this.checkCollision(this.p1Rocket, this.shipNew02)) {
+            this.p1Rocket.reset()
+            this.shipExplode(this.shipNew02)
         }
     }
 
@@ -118,5 +160,14 @@ class Play extends Phaser.Scene {
         this.p1Score += ship.points
         this.scoreLeft.text = this.p1Score
         this.sound.play('sfx-explosion')
+
+        if (game.settings.highScore < this.p1Score) {
+            game.settings.highScore = this.p1Score
+        }
     }
+
+    updateTimer() {
+        let remainingTime = Math.floor(this.clock.getRemaining() / 1000);
+        this.timeLeft.setText(remainingTime);
+    }    
 }
