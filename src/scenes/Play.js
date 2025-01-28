@@ -97,6 +97,8 @@ class Play extends Phaser.Scene {
             this.gameOver = true
         }, null, this)
         
+
+        let hit = false;
     }   
 
     update() {
@@ -129,37 +131,44 @@ class Play extends Phaser.Scene {
         if(this.checkCollision(this.p1Rocket, this.ship03)) {
             this.p1Rocket.reset()
             this.shipExplode(this.ship03)   
-            this.gameTimer += 3000
-            game.settings.gameTimer += 3000
+            this.addTime(3000)
+            this.hit = true
         }
         if (this.checkCollision(this.p1Rocket, this.ship02)) {
             this.p1Rocket.reset()
             this.shipExplode(this.ship02)
-            this.gameTimer += 3000
-            game.settings.gameTimer += 3000
+            this.addTime(3000)
+            this.hit = true
         }
         if (this.checkCollision(this.p1Rocket, this.ship01)) {
             this.p1Rocket.reset()
             this.shipExplode(this.ship01)
-            this.gameTimer += 3000
-            game.settings.gameTimer += 3000
+            this.addTime(3000)
+            this.hit = true
         }
         if (this.checkCollision(this.p1Rocket, this.shipNew01)) {
             this.p1Rocket.reset()
             this.shipExplode(this.shipNew01)
-            this.gameTimer += 3000
-            game.settings.gameTimer += 3000
+            this.addTime(4000)
+            this.hit = true
         }
         if (this.checkCollision(this.p1Rocket, this.shipNew02)) {
             this.p1Rocket.reset()
             this.shipExplode(this.shipNew02)
-            this.gameTimer += 3000
-            game.settings.gameTimer += 3000
+            this.addTime(4000)
+            this.hit = true
+        } 
+        
+        // check if rocket missed while fired
+        if (this.p1Rocket.isFiring && !this.hit && this.p1Rocket.y <= borderUISize * 3 + borderPadding) {
+            console.log("entered here")
+            this.subTime(5000);
         }
 
+        // if (!this.p1Rocket.isFiring) {
+        //     this.rocketHit = false;
+        // }
         
-        
-        // 
     }
 
     checkCollision(rocket, ship) {
@@ -193,5 +202,53 @@ class Play extends Phaser.Scene {
         }
     }
 
-    
+    addTime(time) {
+        this.gameTimer += time
+
+        this.clock.remove()
+        this.clock = this.time.delayedCall(this.gameTimer, () => {
+            this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', {
+                fontFamily: 'Courier',
+                fontSize: '28px',
+                backgroundColor: '#F3B141',
+                color: '#843605',
+                align: 'center',
+                padding: { top: 5, bottom: 5 },
+            }).setOrigin(0.5)
+            this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Press (R) to Restart or ← for Menu', {
+                fontFamily: 'Courier',
+                fontSize: '28px',
+                backgroundColor: '#F3B141',
+                color: '#843605',
+                align: 'center',
+                padding: { top: 5, bottom: 5 },
+            }).setOrigin(0.5)
+            this.gameOver = true;
+        }, null, this)
+    }
+
+    subTime(time) {
+        this.gameTimer -= time
+
+        this.clock.remove()
+        this.clock = this.time.delayedCall(this.gameTimer, () => {
+            this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', {
+                fontFamily: 'Courier',
+                fontSize: '28px',
+                backgroundColor: '#F3B141',
+                color: '#843605',
+                align: 'center',
+                padding: { top: 5, bottom: 5 },
+            }).setOrigin(0.5)
+            this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Press (R) to Restart or ← for Menu', {
+                fontFamily: 'Courier',
+                fontSize: '28px',
+                backgroundColor: '#F3B141',
+                color: '#843605',
+                align: 'center',
+                padding: { top: 5, bottom: 5 },
+            }).setOrigin(0.5)
+            this.gameOver = true;
+        }, null, this)
+    }
 }
