@@ -79,7 +79,8 @@ class Menu extends Phaser.Scene {
           }
           
           this.sound.play('sfx-select')
-          this.scene.start('playScene')   
+          this.scene.start('playScene') 
+          console.log("Play scene")  
         }
 
         if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
