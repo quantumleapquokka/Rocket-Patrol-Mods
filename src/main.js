@@ -1,7 +1,7 @@
 /**
  * Name: Samantha Siew
  * Title: Rocket Patrol Pro 
- * Time:
+ * Time: 12
  * Mods:
  *  1-Point Tier
  *      Track a high score that persists across scenes and display it in the UI 
